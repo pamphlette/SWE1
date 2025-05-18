@@ -48,7 +48,7 @@ function AddPlant() {
   const [genus, setGenus] = useState('');
   const [species, setSpecies] = useState('');
   const [status, setStatus] = useState('');
-  const [qty, setQty] = useState(1);
+  const [qty, setQty] = useState(0);
   const [wishlist, setWishlist] = useState(0);
 
   const handleSubmit = (e, close) => {
@@ -151,12 +151,12 @@ function EditPlant({ plant }) {
       headers: {'Content-Type' : 'application/json'},
       body: JSON.stringify(updatedPlant)
     })
-    // if you fail to add the plant for some reason...
+    // if you fail to edit the plant for some reason...
     .then(res => {
       console.log("Edit response status:", res.status);  // 👈 Add this
       return res.json().then(data => {
         if (!res.ok) {
-          console.error("Backend error:", data);         // 👈 Add this
+          console.error("Backend error: ", data);         // 👈 Add this
           throw new Error("failed to edit plant");
         }
         return data;
@@ -164,7 +164,7 @@ function EditPlant({ plant }) {
     })
     // if good, print results
     .then(data => {
-        console.log('Plant added:', data);
+        console.log('Plant edited: ', data);
         close(); 
     });
   };
