@@ -2,6 +2,8 @@ BACKEND:
 
 This is a lightweight, RESTful API built using Flask and SQLite, designed to help manage simple data models—such as inventories,  task scheduling, collections, or lists of other items with full CRUD functionality. It includes a minimal but functional frontend integration and can be extended to handle different schemas and use cases.
 
+INSTALL LIBRARY (Flask)
+
 FEATURES:
 - SQLite-backed database with commented and customizable schema
 - CRUD endpoints to add, read, update, and delete entries
