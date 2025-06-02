@@ -54,7 +54,6 @@ function AddPlant() {
   const handleSubmit = (e, close) => {
     e.preventDefault();
   
-
     // making a new plant object...
     const newPlant = {
       genus, species, status, qty, wishlist
@@ -89,11 +88,11 @@ function AddPlant() {
               <form onSubmit={(e) => handleSubmit(e, close)}>
                 <label>
                   Genus:
-                  <input value={genus} onChange={e => setGenus(e.target.value)} required />
+                  <input value={genus} onChange={e => setGenus(e.target.value)} />
                 </label><br/>
                 <label>
                   Species:
-                  <input value={species} onChange={e => setSpecies(e.target.value)} required />
+                  <input value={species} onChange={e => setSpecies(e.target.value)} />
                 </label><br/>
                 <label>
                   Status:
