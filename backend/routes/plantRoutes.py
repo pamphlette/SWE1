@@ -70,10 +70,10 @@ def edit_plant():
 @plantBP.route('/api/delete-plant', methods=['POST'])
 def delPlant():
     """Delete a plant from DB given ID"""
-
+    
     data = request.get_json()
-    plant_id = data.get('id')   
-
+    plant_id = data.get('id')
+    
     if plant_id is None:
         return jsonify({"error": "No ID provided"}), 400
     plants.deletePlant(plant_id)

@@ -30,12 +30,28 @@ def insertSale(data):
 
 def getSales():
     """
-    Fetch all sales records.
+    Fetch all sales records with joined unit and plant information.
     :return: list of dictionaries
     """
     with sq.connect(DATABASE) as conn:
         conn.row_factory = sq.Row
-        c = conn.execute("SELECT * FROM sales ORDER BY date DESC")
+        c = conn.execute("""
+            SELECT 
+                sales.saleID,
+                sales.qty,
+                sales.price,
+                sales.date,
+                sales.note,
+
+                unitTypes.unit AS unitLabel,
+
+                plants.genus,
+                plants.species
+            FROM sales
+            LEFT JOIN unitTypes ON sales.unitID = unitTypes.unitID
+            LEFT JOIN plants ON sales.plantID = plants.plantID
+            ORDER BY sales.date DESC
+        """)
         rows = c.fetchall()
         return [dict(row) for row in rows]
 

@@ -47,17 +47,23 @@ function AddPlant() {
   // Set up the variables that are going to be changed
   const [genus, setGenus] = useState('');
   const [species, setSpecies] = useState('');
-  const [status, setStatus] = useState('');
+  const [statusID, setStatusID] = useState('');
   const [qty, setQty] = useState(0);
   const [wishlist, setWishlist] = useState(0);
+  const [statuses, setStatuses] = useState([]);
 
+  // fetch status right away
+    useEffect(() => {
+    fetch('/api/statuses')
+      .then(res => res.json())
+      .then(data => setStatuses(data))
+      .catch(err => console.error("Error fetching statuses", err));
+  }, []);
+
+  // handling form submission
   const handleSubmit = (e, close) => {
     e.preventDefault();
-  
-    // making a new plant object...
-    const newPlant = {
-      genus, species, status, qty, wishlist
-    };
+    const newPlant = { genus, species, statusID, qty, wishlist };
 
     // route info...
     fetch('/api/add-plant', {
@@ -86,26 +92,18 @@ function AddPlant() {
             <div className="modal-content">
               <h3>Add a plant</h3>
               <form onSubmit={(e) => handleSubmit(e, close)}>
-                <label>
-                  Genus:
-                  <input value={genus} onChange={e => setGenus(e.target.value)} />
+                <label>Genus:<input value={genus} onChange={e => setGenus(e.target.value)} /></label><br/>
+                <label>Species:<input value={species} onChange={e => setSpecies(e.target.value)} /></label><br/>
+                <label>Status:
+                <select value={statusID} onChange={e => setStatusID(e.target.value)}>
+                  <option value="">-- Select Status --</option>
+                  {statuses.map((s) => (
+                    <option key={s.statusID} value={s.statusID}>{s.status}</option>
+                  ))}
+                  </select>
                 </label><br/>
-                <label>
-                  Species:
-                  <input value={species} onChange={e => setSpecies(e.target.value)} />
-                </label><br/>
-                <label>
-                  Status:
-                  <input value={status} onChange={e => setStatus(e.target.value)} />
-                </label><br/>
-                <label>
-                  Quantity:
-                  <input type="number" value={qty} onChange={e => setQty(Number(e.target.value))} min="0" />
-                </label><br/>
-                <label>
-                  Wishlist:
-                  <input type="checkbox" checked={wishlist === 1} onChange={e => setWishlist(e.target.checked ? 1 : 0)} />
-                </label><br/>
+                <label>Quantity: <input type="number" value={qty} onChange={e => setQty(Number(e.target.value))} min="0" /></label><br/>
+                <label>Wishlist: <input type="checkbox" checked={wishlist === 1} onChange={e => setWishlist(e.target.checked ? 1 : 0)} /></label><br/>
                 <button type="submit">Add Plant</button>
               </form>
             </div>
@@ -122,18 +120,27 @@ function EditPlant({ plant }) {
   // Set up the variables that are going to be changed
   const [genus, setGenus] = useState(plant.genus);
   const [species, setSpecies] = useState(plant.species);
-  const [status, setStatus] = useState(plant.status);
+  const [statusID, setStatusID] = useState(plant.statusID || '');
   const [qty, setQty] = useState(plant.qty);
   const [wishlist, setWishlist] = useState(plant.wishlist);
+  const [statuses, setStatuses] = useState([]);
 
   // Update plant that will be changed...
     useEffect(() => {
     setGenus(plant.genus);
     setSpecies(plant.species);
-    setStatus(plant.status);
+    setStatusID(plant.statusID || '');
     setQty(plant.qty);
     setWishlist(plant.wishlist);
   }, [plant]);
+
+  // get statuses
+  useEffect(() => {
+    fetch('/api/statuses')
+      .then(res => res.json())
+      .then(data => setStatuses(data))
+      .catch(err => console.error("Error fetching statuses", err));
+  }, []);
 
   const handleSubmit = (e, close) => {
     e.preventDefault();
@@ -141,31 +148,25 @@ function EditPlant({ plant }) {
     // making a new plant object...
     const updatedPlant = {
       plantID: plant.plantID,
-      genus, species, status, qty, wishlist
+      genus, species, statusID, qty, wishlist
     };
 
     // route info...
     fetch('/api/edit-plant', {
       method: 'POST',
-      headers: {'Content-Type' : 'application/json'},
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(updatedPlant)
     })
-    // if you fail to edit the plant for some reason...
-    .then(res => {
-      console.log("Edit response status:", res.status);  // 👈 Add this
-      return res.json().then(data => {
-        if (!res.ok) {
-          console.error("Backend error: ", data);         // 👈 Add this
-          throw new Error("failed to edit plant");
-        }
-        return data;
-      });
-    })
-    // if good, print results
-    .then(data => {
-        console.log('Plant edited: ', data);
+      .then(res => {
+        return res.json().then(data => {
+          if (!res.ok) throw new Error(data);
+          return data;
+        });
+      })
+      .then(data => {
+        console.log('Plant edited:', data);
         close(); 
-    });
+      });
   };
 
   return (
@@ -177,27 +178,19 @@ function EditPlant({ plant }) {
             <div className="modal-content">
               <h3>Edit plant</h3>
               <form onSubmit={(e) => handleSubmit(e, close)}>
-                <label>
-                  Genus:
-                  <input value={genus} onChange={e => setGenus(e.target.value)} required />
-                </label><br/>
-                <label>
-                  Species:
-                  <input value={species} onChange={e => setSpecies(e.target.value)} required />
-                </label><br/>
-                <label>
-                  Status:
-                  <input value={status} onChange={e => setStatus(e.target.value)} />
-                </label><br/>
-                <label>
-                  Quantity:
-                  <input type="number" value={qty} onChange={e => setQty(Number(e.target.value))} min="0" />
-                </label><br/>
-                <label>
-                  Wishlist:
-                  <input type="checkbox" checked={wishlist === 1} onChange={e => setWishlist(e.target.checked ? 1 : 0)} />
-                </label><br/>
-                <button type="submit">Save Changes</button>
+                <label>Genus: <input value={genus} onChange={e => setGenus(e.target.value)} required /></label><br/>
+                <label>Species: <input value={species} onChange={e => setSpecies(e.target.value)} required /></label><br/>
+                <label>Status:
+                  <select value={statusID} onChange={e => setStatusID(e.target.value)}>
+                  <option value="">-- Select Status --</option>
+                  {statuses.map((s) => (
+                    <option key={s.statusID} value={s.statusID}>{s.status}</option>
+                  ))}
+                </select>
+              </label><br/>
+              <label>Quantity: <input type="number" value={qty} onChange={e => setQty(Number(e.target.value))} min="0" /></label><br/>
+              <label>Wishlist: <input type="checkbox" checked={wishlist === 1} onChange={e => setWishlist(e.target.checked ? 1 : 0)} /></label><br/>
+              <button type="submit">Save Changes</button>
               </form>
             </div>
           </div>

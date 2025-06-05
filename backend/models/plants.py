@@ -13,40 +13,42 @@ def insertPlant(data):
     # assign values based on object keys to the respective variables
     genus = data["genus"]
     species = data["species"]
-    status = data["status"]
+    statusID = data["statusID"]
     qty = data["qty"]
     wishlist = data["wishlist"]
     
     # process any values that aren't already handled by the front end...
-    if status == '':
-        status = "unknown"
-    if qty == 0:
-        qty = 1
-
-    #if the plant is toggled as a wishlist item, then no qty + status
     if wishlist == 1:
         qty = 0
-        status = 'wishlist'
+        statusID = None  # no status for wishlist
 
     # now insert values into the DB based on previously defined columns
     with sq.connect(DATABASE) as conn:
         c = conn.cursor()
 
         # make sure that the values inserted use :placeholder format
-        c.execute("""INSERT INTO plants (genus, species, status, qty, wishlist)
-                    VALUES (:genus, :species, :status, :qty, :wishlist)""",
+        c.execute("""INSERT INTO plants (genus, species, statusID, qty, wishlist)
+                    VALUES (:genus, :species, :statusID, :qty, :wishlist)""",
 
-                    {'genus': genus, 'species': species, 'status' : status, 
+                    {'genus': genus, 'species': species, 'statusID' : statusID, 
                      'qty': qty, 'wishlist' : wishlist})
 
 # return all litems in table, replace table names as needed
 def getPlants():
-    """Fetch all rows from the table and return them as a list of dicts
-    
-    :SQL: "SELECT * FROM plants" """
+    """Fetch all rows from the table and return them as a list of dicts"""
     with sq.connect(DATABASE) as conn:
         conn.row_factory = sq.Row
-        c = conn.execute("SELECT * FROM plants")
+        c = conn.execute("""
+            SELECT 
+                plants.plantID, 
+                plants.genus, 
+                plants.species, 
+                plants.qty, 
+                plants.wishlist, 
+                statuses.status
+            FROM plants
+            LEFT JOIN statuses ON plants.statusID = statuses.statusID
+        """)
         rows = c.fetchall()
         return [dict(row) for row in rows]  
 
@@ -56,7 +58,18 @@ def getOwnedPlants():
     """Fetches all rows from the table and return them as a list of dicts"""
     with sq.connect(DATABASE) as conn:
         conn.row_factory = sq.Row
-        c = conn.execute("SELECT * FROM plants WHERE qty > 0")
+        c = conn.execute("""
+            SELECT 
+                plants.plantID, 
+                plants.genus, 
+                plants.species, 
+                plants.qty, 
+                plants.wishlist, 
+                statuses.status
+            FROM plants
+            LEFT JOIN statuses ON plants.statusID = statuses.statusID
+            WHERE qty > 0
+        """)
         rows = c.fetchall()
         return [dict(row) for row in rows]
 
@@ -66,7 +79,18 @@ def getWishlistPlants():
     """Fetches all rows from the table and return them as a list of dicts"""
     with sq.connect(DATABASE) as conn:
         conn.row_factory = sq.Row
-        c = conn.execute("SELECT * FROM plants WHERE wishlist = 1")
+        c = conn.execute("""
+            SELECT 
+                plants.plantID, 
+                plants.genus, 
+                plants.species, 
+                plants.qty, 
+                plants.wishlist, 
+                statuses.status
+            FROM plants
+            LEFT JOIN statuses ON plants.statusID = statuses.statusID
+            WHERE wishlist = 1
+        """)
         rows = c.fetchall()
         return [dict(row) for row in rows]
 
@@ -113,14 +137,14 @@ def updatePlant(data):
     id = data["plantID"]
     genus = data["genus"]
     species = data["species"]
-    status = data["status"]
+    statusID = data["statusID"]
     qty = data["qty"]
     wishlist = data["wishlist"]
     
     # if set to wishlist, reset qty + status
     if wishlist == 1:
         qty = 0
-        status = 'wishlist'
+        statusID = None
 
     # Update all variables as needed
     with sq.connect(DATABASE) as conn:
@@ -128,14 +152,14 @@ def updatePlant(data):
         c.execute("""UPDATE plants SET 
                   genus = :genus, 
                   species = :species, 
-                  status = :status, 
+                  statusID = :statusID, 
                   qty = :qty, 
                   wishlist = :wishlist
                   WHERE plantID = :plantID
                   """, {
                       'genus': genus, 
                       'species': species, 
-                      'status' : status, 
+                      'statusID' : statusID, 
                       'qty': qty, 
                       'wishlist' : wishlist,
                       'plantID' : id})

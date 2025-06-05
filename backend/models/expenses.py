@@ -6,7 +6,7 @@ def insertExpense(data):
     Inserts a new expense into the expenses table.
     Expected keys in `data`: category, plantID (optional), qty, price, date, note
     """
-    category = data["category"]
+    categoryID = data["categoryID"]
     qty = data["qty"]
     price = data["price"]
     date = data["date"]
@@ -19,7 +19,7 @@ def insertExpense(data):
             INSERT INTO expenses (category, plantID, qty, price, date, note)
             VALUES (:category, :plantID, :qty, :price, :date, :note)
         """, {
-            'category': category,
+            'category': categoryID,
             'plantID': plantID,
             'qty': qty,
             'price': price,
@@ -30,11 +30,29 @@ def insertExpense(data):
 
 def getExpense():
     """
-    Fetches all expenses from the database and returns them as a list of dictionaries.
+    Fetches all expenses from the database and joins category and plant info.
+    Returns a list of dictionaries.
     """
     with sq.connect(DATABASE) as conn:
         conn.row_factory = sq.Row
-        c = conn.execute("SELECT * FROM expenses ORDER BY date DESC")
+        c = conn.execute("""
+            SELECT 
+                expenses.expenseID, 
+                expenses.qty, 
+                expenses.price,
+                expenses.date,
+                expenses.note,
+                
+                expenseCategories.category AS categoryName,
+                
+                plants.genus,
+                plants.species
+            FROM expenses
+            LEFT JOIN expenseCategories 
+                ON expenses.categoryID = expenseCategories.categoryID
+            LEFT JOIN plants 
+                ON expenses.plantID = plants.plantID
+        """)
         rows = c.fetchall()
         return [dict(row) for row in rows]
 
@@ -55,7 +73,7 @@ def updateExpense(data):
     Expected keys: expenseID, category, plantID (optional), qty, price, date, note
     """
     expenseID = data["expenseID"]
-    category = data["category"]
+    categoryID = data["categoryID"]
     qty = data["qty"]
     price = data["price"]
     date = data["date"]
@@ -66,7 +84,7 @@ def updateExpense(data):
         c = conn.cursor()
         c.execute("""
             UPDATE expenses SET
-                category = :category,
+                category = :categoryID,
                 plantID = :plantID,
                 qty = :qty,
                 price = :price,
@@ -75,7 +93,7 @@ def updateExpense(data):
             WHERE expenseID = :expenseID
         """, {
             'expenseID': expenseID,
-            'category': category,
+            'category': categoryID,
             'plantID': plantID,
             'qty': qty,
             'price': price,

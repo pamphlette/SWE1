@@ -11,7 +11,7 @@ def initDB():
     """
     # connect to DB and execute block of SQL code to create table 
     with sq.connect(DATABASE) as conn:
-        with open("schema.sql", "r") as schema:
+        with open("sql/schema.sql", "r") as schema:
             conn.executescript(schema.read())
             conn.commit()
 
@@ -53,5 +53,18 @@ def checkDetail():
             for col in columns:
                 print(f"  {col[1]} ({col[2]})"          # col name + type
                 f"{' NOT NULL' if col[3] else ''}"      # not null req 
-                f"{' PRIMARY KEY' if col[5] else ''}")  # PK indicator
-        
+                f"{' PRIMARY KEY' if col[5] else ''}")  # PK indicator       
+
+def insert():
+    """Inserts SQL values into tables"""
+    with sq.connect(DATABASE) as conn:
+        with open("sql/insert.sql", "r") as insert:
+            conn.executescript(insert.read())
+            conn.commit()
+
+def clearDB():
+    """Clears all values from DB"""
+    with sq.connect(DATABASE) as conn:
+        with open("sql/deleteData.sql", "r") as delete:
+            conn.executescript(delete.read())
+            conn.commit()

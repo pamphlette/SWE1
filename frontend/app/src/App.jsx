@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import 'reactjs-popup/dist/index.css';
-import './App.css'
+import './css/App.css'
 
 import PlantTable from './components/greenhouse/PlantTable';
 import { AddPlant } from './components/Interacts';
