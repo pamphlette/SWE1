@@ -1,4 +1,4 @@
-All-in-one plant management app for hobbyists that have too many plants to name them. If you're the sort of person that propagates 10 plants at a time, sows some exotic seeds or just wants to share a bunch of plants ready to trade at a given time and are sick of keeping things in your phone's notes...this might be for you.
+All-in-one plant management app for hobbyists that have too many plants to name them. If you're the sort of person that propagates 10 plants at a time, sows exotic seeds and makes a note about it or you just want to share a subset of plants at a given time and are sick of keeping things in your phone's notes...this might be for you.
 
 **CURRENT STATUS: **Back-end functional + basic front end. No features beyond adding/editing plants.
 
