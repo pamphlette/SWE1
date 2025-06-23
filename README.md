@@ -1,3 +1,7 @@
+All-in-one plant management app for hobbyists that have too many plants to name them. If you're the sort of person that propagates 10 plants at a time, sows some exotic seeds or just wants to share a bunch of plants ready to trade at a given time and are sick of keeping things in your phone's notes...this might be for you.
+
+**CURRENT STATUS: **Back-end functional + basic front end. No features beyond adding/editing plants.
+
 BACKEND:
 
 This is a lightweight, RESTful API built using Flask and SQLite, designed to help manage simple data models—such as inventories,  task scheduling, collections, or lists of other items with full CRUD functionality. It includes a minimal but functional frontend integration and can be extended to handle different schemas and use cases.
